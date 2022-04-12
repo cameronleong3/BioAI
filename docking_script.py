@@ -9,62 +9,51 @@ Created on Mon Jan 24 12:49:50 2022
 from vina import Vina
 ligand_base = 'maybridge_fragment_'
 protein = '2kid.pdbqt'
+v = Vina(sf_name='vina')
+#files that contain errors and can't be simulated
+errors = [3,9,11,12,14,60,65,72,101,109,112,115,124,177,202,218,234,248,260,266]
+scores_file = open('scores.txt','w')
+import time
 
+def score_ligand(ligand_name):
+	#print("setting receptor_____")
+	v.set_receptor(protein)
+	#print("setting ligand________")
+	v.set_ligand_from_file(ligand_name)
+	#print("computing vina maps________")
+	v.compute_vina_maps(center=[0,0,0], box_size=[100, 100, 100])
+	#print("optimizing energy________")
+	energy_minimized = v.optimize()
+	#print("writing scores to file________")
+	scores_file.write("fragment "+str(i)+"\tscore: "+str(energy_minimized[7])+"\n")
+	#v.write_pose('ex_minimized.pdbqt', overwrite=True)
 
 def dock_ligand(ligand_name):
-	print("starting...\n")
-	print("Protein: "+protein)
-	print("ligand: "+ligand_name)
-	v = Vina(sf_name='vina')
-
-	v.set_receptor(protein)
-
-	v.set_ligand_from_file(ligand_name)
-	v.compute_vina_maps(center=[0,0,0], box_size=[100, 100, 100])#center = [15.190, 53.903, 16.917], box_size=[20, 20, 20]
-	#v.compute_vina_maps(center=[0,0,0], box_size=[100, 100, 100])#center = [15.190, 53.903, 16.917], box_size=[20, 20, 20])
-
-
-
-	print("\n\nscore:")
-	print(v.score(),"\n")
-	print("score after optimization")
-	print(v.optimize())
-	print("\n\n")
-	#Score the current pose
-	energy = v.score()
-
-
-	print('Score before minimization: %.3f (kcal/mol)' % energy[0])
-
-	# Minimized locally the current pose
-	energy_minimized = v.optimize()
-	print('Score after minimization : %.3f (kcal/mol)' % energy_minimized[0])
-	v.write_pose('ex_minimized.pdbqt', overwrite=True)
-	file_object.write("ligand: "+ligand_name+"\tscore: "+str(energy_minimized[7])+"\n")
-	# Dock the ligand
+	#print("docking_________")
 	v.dock(exhaustiveness=32, n_poses=10)
-	v.write_poses('ex_out.pdbqt', n_poses=5, overwrite=True)
-	print(v.energies(n_poses = 10))
+	print("Protein: "+protein)
+	print("ligand: "+ligand)
+	#v.write_poses('ex_out.pdbqt', n_poses=5, overwrite=True)
+	#print(v.energies(n_poses = 10))
 
-file_object = open('scores.txt','a')
 
-dock_ligand("actarit.pdbqt")
-"""
-for i in range(3):
+
+
+#main
+
+
+#can go through 269 maybridge fragments
+for i in range(1,4):
+	print("START\n\n\n")
+	while i in errors:
+		i += 1
 	ligand = ligand_base+str(i)+'.pdbqt'
-	dock_ligand(ligand)
-	print("DONE")
-file_object.close()
-"""
+	energy_score = score_ligand(ligand)
+	#dock_ligand(ligand)
+	print("____________________________________________")
+
+#close files
+scores_file.close()
 
 
-"""
-#v.write_poses('actarit_out.pdbqt', energy_range = 0)
 
-#optimized scores
-
-actarit: 		0 	0 	0 	0 	0 	.217 	 	0 	 	.217
-fragment_0: 	0 	0 	0 	0 	0 	0 		 	0 	 	0
-fragment_1: 	0 	0 	0 	0 	0 	189.107  	0 		189.107
-
-"""
