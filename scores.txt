@@ -1,0 +1,4 @@
+ligand: maybridge_fragment_0.pdbqt score: 0.0
+ligand: maybridge_fragment_1.pdbqt score: 189.104
+ligand: maybridge_fragment_2.pdbqt score: 58.71
+ligand: actarit.pdbqt score: 0.128
