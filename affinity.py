@@ -28,6 +28,9 @@ start_cut = len(prologue)
 end_cut = len(epilogue)
 count = False
 counter = 0
+num = 0
+
+frag_bests = []
 
 for token in tokens:
     if count:  # Track progress to hits
@@ -37,8 +40,14 @@ for token in tokens:
     elif token == count_start:  # Start count to hits
         count = True
     elif counter in hits:  # hit! save value
-        affinities.append(token)
+        affinities.append(float(token))
         if len(affinities) == hit_total:  # last hit for frag: output & reset
-            print(num, "\t", max(affinities))
+            best = (num,max(affinities))
+            frag_bests.append(best)
+
             affinities.clear()
             counter = count = 0
+
+frag_bests.sort(key=lambda tup: tup[1], reverse = True)
+
+print(*frag_bests, sep="\n")
